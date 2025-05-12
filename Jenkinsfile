@@ -16,8 +16,8 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'npm install'
-                bat 'npm run build'
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
             }
         }
 
@@ -26,32 +26,32 @@ pipeline {
                 expression { return params.RUN_TESTS }
             }
             steps {
-                bat 'npm test'
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" test'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat "docker build -t moja-aplikacja:${params.web-app} ."
+                bat '"C:\\Program Files\\Docker\\Docker Desktop\\docker.exe" build -t moja-aplikacja:${params.web-app} .'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo "Wdrażanie aplikacji do środowiska ${params.ENVIRONMENT}"
-                bat "docker stop moja-aplikacja-${params.ENVIRONMENT} || exit 0"
-                bat "docker rm moja-aplikacja-${params.ENVIRONMENT} || exit 0"
-                bat "docker run -d -p 808${params.ENVIRONMENT == 'dev' ? '1' : params.ENVIRONMENT == 'staging' ? '2' : '3'}:80 --name moja-aplikacja-${params.ENVIRONMENT} moja-aplikacja:${params.web-app}"
+                bat '"C:\\Program Files\\Docker\\Docker Desktop\\docker.exe" stop moja-aplikacja-${params.ENVIRONMENT} || exit 0'
+                bat '"C:\\Program Files\\Docker\\Docker Desktop\\docker.exe" rm moja-aplikacja-${params.ENVIRONMENT} || exit 0'
+                bat '"C:\\Program Files\\Docker\\Docker Desktop\\docker.exe" run -d -p 808${params.ENVIRONMENT == 'dev' ? '1' : params.ENVIRONMENT == 'staging' ? '2' : '3'}:80 --name moja-aplikacja-${params.ENVIRONMENT} moja-aplikacja:${params.web-app}'
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline zakończony sukcesem! Aplikacja dostępna pod odpowiednim portem."
+            echo "✅ Pipeline zakończony sukcesem! Aplikacja dostępna pod odpowiednim portem."
         }
         failure {
-            echo "Pipeline zakończony niepowodzeniem. Sprawdź logi, aby uzyskać więcej informacji."
+            echo "❌ Pipeline zakończony niepowodzeniem. Sprawdź logi, aby uzyskać więcej informacji."
         }
     }
 }
