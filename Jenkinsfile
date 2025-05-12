@@ -16,8 +16,8 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'npm install'
-                sh 'npm run build'
+                bat 'npm install'
+                bat 'npm run build'
             }
         }
 
@@ -26,22 +26,22 @@ pipeline {
                 expression { return params.RUN_TESTS }
             }
             steps {
-                sh 'npm test'
+                bat 'npm test'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t moja-aplikacja:${params.web-app} ."
+                bat "docker build -t moja-aplikacja:${params.web-app} ."
             }
         }
 
         stage('Deploy') {
             steps {
                 echo "Wdrażanie aplikacji do środowiska ${params.ENVIRONMENT}"
-                sh "docker stop moja-aplikacja-${params.ENVIRONMENT} || true"
-                sh "docker rm moja-aplikacja-${params.ENVIRONMENT} || true"
-                sh "docker run -d -p 808${params.ENVIRONMENT == 'dev' ? '1' : params.ENVIRONMENT == 'staging' ? '2' : '3'}:80 --name moja-aplikacja-${params.ENVIRONMENT} moja-aplikacja:${params.DOCKER_TAG}"
+                bat "docker stop moja-aplikacja-${params.ENVIRONMENT} || exit 0"
+                bat "docker rm moja-aplikacja-${params.ENVIRONMENT} || exit 0"
+                bat "docker run -d -p 808${params.ENVIRONMENT == 'dev' ? '1' : params.ENVIRONMENT == 'staging' ? '2' : '3'}:80 --name moja-aplikacja-${params.ENVIRONMENT} moja-aplikacja:${params.web-app}"
             }
         }
     }
